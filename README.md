@@ -1,61 +1,176 @@
 # Typesense Server User Interface
 
-A user interface for the Typesense Server, run in the browser
+A web-based user interface for Typesense server that provides a simple way to manage and visualize your Typesense data.
 
-<img width="803" alt="Screenshot 2023-01-19 at 12 28 00" src="https://user-images.githubusercontent.com/20671922/213431167-5e71148e-90a8-4e79-8db5-6764e8002701.png">
+## Features
 
-## Running the interface with demo data
+- Browse collections and documents
+- View collection schemas
+- Real-time search functionality
+- Dark mode interface
+- Configurable connection settings
+- Docker-ready deployment
 
-a) clone or download this repo
+## Prerequisites
 
-b) open typesense-ui.html
+- Docker and Docker Compose (for Docker deployment)
+- Node.js 16+ (for local development)
+- A running Typesense server instance
 
-You should now see three collections and some demo documents. Note that the demo does not present all features and may introduce bugs that don't occur when connecting your own instance. So it's recommended to connect to your own server.
+## Setup
 
-## Running the interface with your own data
+### Using Docker Compose (Recommended)
 
-a) add "enable-cors = true" to your Typesense Server in /etc/typesense/typesense-server.ini
+1. Clone this repository:
+```bash
+git clone https://github.com/yourusername/typesense-ui.git
+cd typesense-ui
+```
 
-b) clone or download this repo
+2. Copy `.env.example` to `.env` and configure your Typesense connection parameters:
+```bash
+cp .env.example .env
+```
 
-c) add your Typesense Server API key and your Typesense Nodes to env in /js/typesense-api.js
+3. Run with docker-compose:
+```bash
+docker-compose up
+```
 
-d) set "USE_DEMO" in env to false or remove anything demo-related entirely
+Example docker-compose.yml:
+```yaml
+version: '3'
+services:
+  typesense-ui:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - TS_SERVER_KEY=${TS_SERVER_KEY:-your_key_here}
+      - TS_HOST=${TS_HOST:-localhost}
+      - TS_PORT=${TS_PORT:-8108}
+      - TS_PROTOCOL=${TS_PROTOCOL:-http}
+      - PAGE_LENGTH=${PAGE_LENGTH:-20}
+      - USE_DEMO=${USE_DEMO:-true}
+    volumes:
+      - ./js:/app/js
+      - ./css:/app/css
+```
 
-e) open typesense-ui.html
+### Using Docker Directly
 
-You should now see your collections and your documents.
+1. Build the image:
+```bash
+docker build -t typesense-ui .
+```
 
-## CRUD
+2. Run the container:
+```bash
+docker run -p 3000:3000 \
+  -e TS_SERVER_KEY=your_key_here \
+  -e TS_HOST=localhost \
+  -e TS_PORT=8108 \
+  -e TS_PROTOCOL=http \
+  -e PAGE_LENGTH=20 \
+  -e USE_DEMO=false \
+  typesense-ui
+```
 
-### Reading and filtering docs
+### Local Development Setup
 
-Documents are displayed unfiltered on initial load. Hover over the table header and enter one or several filters, then click search or press enter to filter. Reset the filters with the close button or esc key.
+1. Install dependencies:
+```bash
+npm install
+```
 
-**Pagination**
+2. Configure environment variables in `.env`
 
-Hover of the collection title to get the page buttons displayed. Click up or down to flick through the paginated results.
+3. Start the development server:
+```bash
+npm start
+```
 
-You can set the pagination in env in /js/typesense-api.js. Max 250.
+## Configuration
 
-### Writing new docs
+### Environment Variables
 
-Hover over the table header and enter one or several entries, then click upload. Reset the entries with the close button or esc key.
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `TS_SERVER_KEY` | Your Typesense API key | `your_key_here` |
+| `TS_HOST` | Typesense server hostname | `localhost` |
+| `TS_PORT` | Typesense server port | `8108` |
+| `TS_PROTOCOL` | Protocol to use (http/https) | `http` |
+| `PAGE_LENGTH` | Number of items per page | `20` |
+| `USE_DEMO` | Whether to use demo mode | `true` |
 
-### Updating fields of a doc
+### Example .env file
+```env
+TS_SERVER_KEY=xyz123
+TS_HOST=typesense.example.com
+TS_PORT=8108
+TS_PROTOCOL=https
+PAGE_LENGTH=20
+USE_DEMO=false
+```
 
-Click the entry in the cell, make the change, then click somewhere else or press enter to commit the change.
+## Development
 
-### Deleting docs
+The project uses a simple Express server to serve the UI and handle environment variable injection. For development:
 
-Hover over the first column to get the delete button displayed for the row. Click it to get the confirmation button displayed. Click the confirmation button to irreversibly delete the doc from the collection.
+- The Docker setup includes volume mounts for the `js` and `css` directories
+- Changes to these directories will be reflected immediately without rebuilding
+- The application will be available at http://localhost:3000
 
-## Other Functionality
+### Project Structure
 
-### Scroll
+```
+.
+├── Dockerfile
+├── docker-compose.yml
+├── package.json
+├── server.js
+├── .env
+├── .gitignore
+├── css/
+│   └── style-dark.css
+└── js/
+    ├── typesense-api.js
+    ├── vdom.js
+    ├── components.js
+    └── main.js
+```
 
-When the contents of a cell overflow, you can scroll the cell left and right and the viewer will continuously scroll the content left in order to be able to read the full text.
+## Troubleshooting
 
-### Dark and Light Mode
+### Common Issues
 
-The UI defaults to dark mode. To change to light mode, load style-light.css in typesense-ui.html
+1. Connection refused:
+   - Verify Typesense server is running
+   - Check if the host/port configuration is correct
+   - Ensure firewall rules allow the connection
+
+2. Authentication failed:
+   - Verify your API key is correct
+   - Check if the API key has appropriate permissions
+
+3. CORS issues:
+   - Ensure your Typesense server is configured to accept requests from the UI's domain
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Built with [Typesense](https://typesense.org/)
+- Uses Express for serving the UI
+- Docker support for easy deployment
+- Inspired by [bfritscher/typesense-dashboard](https://github.com/bfritscher/typesense-dashboard) - A comprehensive Typesense Dashboard built with Vue and Electron

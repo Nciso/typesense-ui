@@ -8,14 +8,14 @@ const TypesenseAPI = ( () => {
    */
 
   const env = {
-    TS_SERVER_KEY: 'your key here',
+    TS_SERVER_KEY: window.TS_SERVER_KEY || 'your key here',
     TS_NODES: [{
-      host: 'your ip here',
-      port: '8108',
-      protocol: 'http',
+      host: window.TS_HOST || 'your ip here',
+      port: window.TS_PORT || '8108',
+      protocol: window.TS_PROTOCOL || 'http',
     }],
-    PAGE_LENGTH: 20,
-    USE_DEMO: true,
+    PAGE_LENGTH: parseInt(window.PAGE_LENGTH) || 20,
+    USE_DEMO: window.USE_DEMO === 'false' ? false : true,
   };
 
 
